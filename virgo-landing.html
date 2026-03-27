@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virgo — AI Farm Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tea: #D0EFB1;
+    --celadon: #B3D89C;
+    --lblue: #9DC3C2;
+    --steel: #77A6B6;
+    --cerulean: #4D7298;
+    --dark: #0d1a14;
+    --mid: #1a2e22;
+    --ink: #0a1510;
+    --cream: #f4f0e6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--tea);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--tea);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.12s ease-out;
+    opacity: 0.5;
+  }
+
+  /* FRACTAL CANVAS BG */
+  #fractal-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    backdrop-filter: blur(12px);
+    background: rgba(10,21,16,0.7);
+    border-bottom: 1px solid rgba(157,195,194,0.1);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--tea);
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--steel); font-style: italic; }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(244,240,230,0.5);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--tea); }
+
+  .nav-cta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--steel);
+    color: var(--steel);
+    padding: 10px 22px;
+    cursor: none;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .nav-cta:hover {
+    background: var(--steel);
+    color: var(--ink);
+  }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 120px 48px 80px;
+    gap: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-shape {
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(77,114,152,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-bg-shape2 {
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(179,216,156,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--celadon);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-label::before {
+    content: '';
+    display: block;
+    width: 28px; height: 1px;
+    background: var(--celadon);
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(52px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    color: var(--cream);
+    margin-bottom: 28px;
+  }
+  .hero-title em {
+    color: var(--tea);
+    font-style: italic;
+    display: block;
+  }
+  .hero-title .outlined {
+    -webkit-text-stroke: 1px var(--steel);
+    color: transparent;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(244,240,230,0.55);
+    max-width: 440px;
+    margin-bottom: 44px;
+    font-weight: 400;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--tea);
+    color: var(--ink);
+    border: none;
+    padding: 16px 32px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--celadon);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .btn-primary:hover::after { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-secondary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(244,240,230,0.2);
+    padding: 16px 32px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--tea);
+    color: var(--tea);
+  }
+
+  /* HERO RIGHT — fractal farm visual */
+  .hero-visual {
+    position: relative;
+    height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-visual-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(157,195,194,0.15);
+    animation: pulse-ring 4s ease-in-out infinite;
+  }
+  .ring1 { width: 300px; height: 300px; animation-delay: 0s; }
+  .ring2 { width: 400px; height: 400px; animation-delay: 0.8s; border-style: dashed; }
+  .ring3 { width: 500px; height: 500px; animation-delay: 1.6s; }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.02); }
+  }
+
+  .hero-card {
+    background: rgba(157,195,194,0.06);
+    border: 1px solid rgba(157,195,194,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 2px;
+    padding: 24px;
+    width: 280px;
+    position: relative;
+    z-index: 2;
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .hero-stat {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    color: var(--tea);
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .hero-pill {
+    position: absolute;
+    background: rgba(77,114,152,0.3);
+    border: 1px solid rgba(77,114,152,0.4);
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--steel);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .pill-1 { top: 60px; right: -40px; animation: float 5s ease-in-out infinite 1s; }
+  .pill-2 { bottom: 80px; left: -60px; animation: float 7s ease-in-out infinite 0.5s; }
+
+  /* STATS BAR */
+  .stats-bar {
+    border-top: 1px solid rgba(157,195,194,0.1);
+    border-bottom: 1px solid rgba(157,195,194,0.1);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 48px;
+  }
+  .stat-item {
+    padding: 36px 0;
+    border-right: 1px solid rgba(157,195,194,0.1);
+    padding-left: 48px;
+  }
+  .stat-item:first-child { padding-left: 0; }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 44px;
+    color: var(--tea);
+    line-height: 1;
+  }
+  .stat-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.4);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* PROBLEM SECTION */
+  #problem {
+    padding: 100px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--steel);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px; height: 1px;
+    background: var(--steel);
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 4vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    color: var(--cream);
+    margin-bottom: 24px;
+  }
+  .section-title em { color: var(--lblue); font-style: italic; }
+
+  .section-body {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(244,240,230,0.5);
+    font-weight: 400;
+  }
+
+  .problem-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .prob-card {
+    background: rgba(13,26,20,0.8);
+    border: 1px solid rgba(157,195,194,0.12);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .prob-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--steel);
+    opacity: 0.5;
+  }
+  .prob-card:hover { border-color: rgba(157,195,194,0.3); }
+  .prob-card:nth-child(1)::before { background: var(--tea); }
+  .prob-card:nth-child(2)::before { background: var(--celadon); }
+  .prob-card:nth-child(3)::before { background: var(--lblue); }
+  .prob-card:nth-child(4)::before { background: var(--cerulean); }
+
+  .prob-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .prob-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--cream);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+  .prob-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.4);
+    line-height: 1.6;
+  }
+
+  /* SOLUTION */
+  #solution {
+    padding: 100px 48px;
+    background: linear-gradient(180deg, transparent, rgba(77,114,152,0.05) 50%, transparent);
+  }
+
+  .solution-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 72px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(157,195,194,0.08);
+    border: 1px solid rgba(157,195,194,0.1);
+  }
+
+  .feature-item {
+    background: var(--ink);
+    padding: 44px 36px;
+    transition: background 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--tea), var(--cerulean));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .feature-item:hover { background: rgba(13,26,20,0.95); }
+  .feature-item:hover::after { transform: scaleX(1); }
+
+  .feat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 64px;
+    color: rgba(208,239,177,0.08);
+    line-height: 1;
+    position: absolute;
+    top: 20px; right: 24px;
+    user-select: none;
+  }
+  .feat-icon {
+    width: 44px; height: 44px;
+    background: rgba(157,195,194,0.1);
+    border: 1px solid rgba(157,195,194,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+  .feat-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+  .feat-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(244,240,230,0.45);
+    font-weight: 400;
+  }
+  .feat-tag {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--tea);
+    border: 1px solid rgba(208,239,177,0.2);
+    padding: 4px 10px;
+  }
+
+  /* PROTOTYPE / DEMO */
+  #demo {
+    padding: 100px 48px;
+  }
+  .demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 48px;
+  }
+
+  /* DASHBOARD EMBED */
+  .dashboard-wrapper {
+    background: #f0f0f0;
+    border: 1px solid rgba(157,195,194,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .db-topbar {
+    background: #e8e8e8;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #d0d0d0;
+  }
+  .db-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .db-dot.red { background: #ff5f57; }
+  .db-dot.yellow { background: #febc2e; }
+  .db-dot.green { background: #28c840; }
+  .db-url {
+    background: white;
+    border-radius: 20px;
+    padding: 4px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #888;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+  }
+
+  /* inner dashboard */
+  .dashboard {
+    background: #f5f5f7;
+    min-height: 600px;
+  }
+  .db-nav {
+    background: white;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e5e5;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .db-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #2d4a35;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .db-brand-dot { width: 8px; height: 8px; background: #77A6B6; border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .db-nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .db-nav-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    text-decoration: none;
+  }
+  .db-nav-links a.active { color: #4D7298; }
+  .db-user {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .db-avatar {
+    width: 28px; height: 28px;
+    background: #77A6B6;
+    border-radius: 50%;
+    font-size: 11px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  .db-body {
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 220px 1fr 280px;
+    gap: 20px;
+  }
+
+  .db-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .db-card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 14px;
+  }
+
+  /* TOP METRICS ROW */
+  .db-metrics {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+  .db-metric {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .db-metric::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .db-metric:nth-child(1)::before { background: #B3D89C; }
+  .db-metric:nth-child(2)::before { background: #9DC3C2; }
+  .db-metric:nth-child(3)::before { background: #77A6B6; }
+  .db-metric:nth-child(4)::before { background: #4D7298; }
+  .db-metric-icon { font-size: 22px; margin-bottom: 10px; }
+  .db-metric-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #1a2e22;
+    line-height: 1;
+  }
+  .db-metric-sub {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .db-metric-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    margin-top: 6px;
+  }
+  .badge-green { background: #e8f7e8; color: #2d7a2d; }
+  .badge-blue { background: #e6f0f7; color: #4D7298; }
+  .badge-orange { background: #fef3e6; color: #c07020; }
+
+  /* FARM OVERVIEW */
+  .farm-info { display: flex; flex-direction: column; gap: 14px; }
+  .farm-avatar {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #77A6B6, #4D7298);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .farm-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #222;
+  }
+  .farm-detail {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+  }
+  .farm-divider { height: 1px; background: #f0f0f0; }
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .act-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .act-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: #555;
+    flex: 1;
+  }
+  .act-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #bbb;
+  }
+
+  /* CROP HEALTH */
+  .crop-visual {
+    background: linear-gradient(135deg, #2d5a2d, #1a3a1a);
+    border-radius: 8px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .crop-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(46,120,46,0.3) 0px,
+      rgba(46,120,46,0.3) 8px,
+      transparent 8px,
+      transparent 24px
+    );
+  }
+  .crop-badge {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(208,239,177,0.3);
+    padding: 10px 20px;
+    border-radius: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .crop-status-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #B3D89C;
+  }
+  .crop-status-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    margin-top: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* MINI CHART */
+  .mini-chart {
+    height: 80px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    padding: 0 4px;
+  }
+  .chart-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    transition: height 1s ease;
+  }
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #bbb;
+  }
+
+  /* ALERTS PANEL */
+  .alert-none {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f0f8f0;
+    border-radius: 6px;
+    border: 1px solid #c8e8c8;
+  }
+  .alert-none-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    color: #4a7a4a;
+  }
+  .sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .sensor-item {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .sensor-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #4D7298;
+  }
+  .sensor-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* MANUAL IRRIG BUTTON */
+  .db-irrig-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #4D7298, #77A6B6);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(77,114,152,0.3);
+    transition: all 0.3s;
+  }
+  .db-irrig-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(77,114,152,0.4); }
+
+  /* PROFIT CHART SECTION */
+  .profit-section {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+  }
+
+  /* MARKET / TECH SECTION */
+  #market {
+    padding: 100px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .market-visual {
+    position: relative;
+    height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px dashed rgba(157,195,194,0.2);
+  }
+  .orbit-1 { width: 200px; height: 200px; animation: spin 20s linear infinite; }
+  .orbit-2 { width: 300px; height: 300px; animation: spin 30s linear infinite reverse; }
+  .orbit-3 { width: 380px; height: 380px; animation: spin 45s linear infinite; }
+
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .orbit-dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--tea);
+    border-radius: 50%;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .orbit-dot-2 { background: var(--steel); top: auto; bottom: -5px; }
+  .orbit-dot-3 { background: var(--lblue); top: 50%; left: -5px; }
+
+  .market-center {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    background: rgba(13,26,20,0.9);
+    border: 1px solid rgba(157,195,194,0.2);
+    padding: 28px 36px;
+    backdrop-filter: blur(10px);
+  }
+  .market-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    color: var(--tea);
+    line-height: 1;
+  }
+  .market-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .market-points { list-style: none; }
+  .market-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(157,195,194,0.08);
+  }
+  .mp-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--steel);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .mp-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(244,240,230,0.55);
+  }
+  .mp-text strong {
+    color: var(--cream);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 15px;
+  }
+
+  /* FINANCIAL PROJECTIONS */
+  #financials {
+    padding: 80px 48px;
+    background: rgba(77,114,152,0.04);
+    border-top: 1px solid rgba(157,195,194,0.08);
+    border-bottom: 1px solid rgba(157,195,194,0.08);
+  }
+
+  .fin-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    align-items: start;
+    margin-top: 48px;
+  }
+
+  .fin-year {
+    padding: 24px;
+    border: 1px solid rgba(157,195,194,0.12);
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .fin-year:hover { border-color: rgba(157,195,194,0.3); }
+  .fin-year-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--steel);
+    margin-bottom: 10px;
+  }
+  .fin-year-profit {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1;
+  }
+  .profit-neg { color: rgba(244,100,100,0.7); }
+  .profit-pos { color: var(--tea); }
+  .fin-year-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.35);
+    margin-top: 6px;
+  }
+
+  /* SVG CHART */
+  .fin-chart-wrapper {
+    position: relative;
+  }
+  .fin-chart-wrapper svg { width: 100%; height: auto; }
+
+  /* CTA */
+  #cta {
+    padding: 120px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(77,114,152,0.12) 0%, transparent 70%);
+  }
+
+  .cta-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    color: var(--cream);
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .cta-title em { color: var(--tea); font-style: italic; }
+  .cta-title .outlined {
+    -webkit-text-stroke: 1px var(--steel);
+    color: transparent;
+  }
+
+  .cta-desc {
+    font-size: 15px;
+    color: rgba(244,240,230,0.45);
+    max-width: 500px;
+    margin: 0 auto 44px;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .cta-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* EMAIL BTN */
+  .btn-email {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(244,240,230,0.2);
+    padding: 16px 32px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  .btn-email:hover {
+    border-color: var(--tea);
+    color: var(--tea);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid rgba(157,195,194,0.1);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--tea);
+  }
+  .footer-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.25);
+    letter-spacing: 1px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(244,240,230,0.3);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--tea); }
+
+  /* FRACTAL DIVIDER */
+  .fractal-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--steel), var(--tea), var(--celadon), transparent);
+    opacity: 0.2;
+    margin: 0 48px;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    #hero, #problem, #market { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr; }
+    nav { padding: 20px 24px; }
+    #hero, #problem, #market, #solution, #demo, #financials { padding: 80px 24px; }
+    .hero-visual { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<canvas id="fractal-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Virgo<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#market">Market</a></li>
+    <li><a href="#financials">Financials</a></li>
+  </ul>
+  <a href="mailto:team@virgo.farm" class="nav-cta">Contact Us</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-shape"></div>
+  <div class="hero-bg-shape2"></div>
+
+  <div class="hero-content">
+    <div class="hero-label">AI Agri-Tech Platform — Punjab Engineering College</div>
+    <h1 class="hero-title">
+      Farm <em>Intelligence.</em>
+      <span class="outlined">Real-Time</span>
+      Profit.
+    </h1>
+    <p class="hero-desc">Virgo is a unified AI platform that turns raw farm data into real-time profit visibility — automating irrigation, detecting crop disease, and optimizing every resource decision.</p>
+    <div class="hero-btns">
+      <a href="#demo" class="btn-primary"><span>View Demo Dashboard</span></a>
+      <a href="mailto:team@virgo.farm" class="btn-secondary">Contact the Team</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-visual-ring ring1"></div>
+    <div class="hero-visual-ring ring2"></div>
+    <div class="hero-visual-ring ring3"></div>
+    <div class="hero-card">
+      <div class="hero-stat">₹21.5L</div>
+      <div class="hero-stat-label">Projected Year 3 Profit</div>
+    </div>
+    <div class="hero-pill pill-1">🌿 Crop Health: Optimal</div>
+    <div class="hero-pill pill-2">💧 Water Saved: 60%</div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-num">80%</div>
+    <div class="stat-text">Marginal farmers lose crops to climate</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">75%</div>
+    <div class="stat-text">Irrigation water wasted annually</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">$9.5B</div>
+    <div class="stat-text">Global precision agri market</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">73%</div>
+    <div class="stat-text">Venture viability index score</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="reveal">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">Farmers fly <em>blind</em> every season.</h2>
+    <p class="section-body">Guesswork irrigation wastes water. Crop diseases go unnoticed until yields drop. Manual monitoring on large farms drains time and productivity. The data exists — but no one has connected it to profit.</p>
+  </div>
+  <div class="problem-cards reveal">
+    <div class="prob-card">
+      <span class="prob-icon">🌧️</span>
+      <div class="prob-title">Inaccurate Weather</div>
+      <div class="prob-text">Generic forecasts fail at farm-level — causing reactive, costly decisions.</div>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">🦠</span>
+      <div class="prob-title">Late Disease Detection</div>
+      <div class="prob-text">Nutrient deficiencies go unnoticed until yields visibly drop.</div>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">💸</span>
+      <div class="prob-title">Wasted Resources</div>
+      <div class="prob-text">50-75% of irrigation water is wasted due to fixed, non-adaptive schedules.</div>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">🔎</span>
+      <div class="prob-title">No Profit Visibility</div>
+      <div class="prob-text">Agri-businesses have zero real-time financial view across farms.</div>
+    </div>
+  </div>
+</section>
+
+<div class="fractal-divider"></div>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="solution-header reveal">
+    <div class="section-label" style="justify-content:center">Our Solution</div>
+    <h2 class="section-title" style="text-align:center">One platform. Every farm variable, <em>unified.</em></h2>
+  </div>
+
+  <div class="features-grid reveal">
+    <div class="feature-item">
+      <div class="feat-num">01</div>
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Real-Time Profit Dashboard</div>
+      <div class="feat-desc">See the exact financial impact of every irrigation decision, fertilizer application, and weather event — updated live across all your fields.</div>
+      <span class="feat-tag">Core Feature</span>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num">02</div>
+      <div class="feat-icon">🤖</div>
+      <div class="feat-title">AI Crop Health & Pest Alerts</div>
+      <div class="feat-desc">Computer vision models scan crop imagery to detect disease, pest infestations, and nutrient deficiencies before they become yield losses.</div>
+      <span class="feat-tag">AI/ML</span>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num">03</div>
+      <div class="feat-icon">💧</div>
+      <div class="feat-title">Automated Irrigation Control</div>
+      <div class="feat-desc">IoT soil moisture sensors trigger irrigation automatically based on real conditions — cutting water waste by up to 60% with no manual intervention.</div>
+      <span class="feat-tag">IoT Hardware</span>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num">04</div>
+      <div class="feat-icon">🌦️</div>
+      <div class="feat-title">Hyperlocal Weather Forecasting</div>
+      <div class="feat-desc">Field-specific microclimate predictions using multiple sensor inputs, replacing generic national weather forecasts with precision data.</div>
+      <span class="feat-tag">Weather API</span>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num">05</div>
+      <div class="feat-icon">🗺️</div>
+      <div class="feat-title">Multi-Farm Remote Monitoring</div>
+      <div class="feat-desc">Manage an entire portfolio of farms from a single dashboard — with per-field alerts, yield tracking, and resource allocation at scale.</div>
+      <span class="feat-tag">Cloud Platform</span>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num">06</div>
+      <div class="feat-icon">🧪</div>
+      <div class="feat-title">Automated Fertilizer Spraying</div>
+      <div class="feat-desc">AI-guided actuators apply precise fertilizer doses based on real-time soil nutrient data — reducing input costs while maximizing yield quality.</div>
+      <span class="feat-tag">Precision Agri</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO DASHBOARD -->
+<section id="demo">
+  <div class="demo-header reveal">
+    <div>
+      <div class="section-label">Live Prototype</div>
+      <h2 class="section-title">The <em>Dashboard</em></h2>
+    </div>
+    <a href="mailto:team@virgo.farm" class="btn-primary"><span>Request Full Demo</span></a>
+  </div>
+
+  <div class="dashboard-wrapper reveal">
+    <!-- Browser chrome -->
+    <div class="db-topbar">
+      <div class="db-dot red"></div>
+      <div class="db-dot yellow"></div>
+      <div class="db-dot green"></div>
+      <div class="db-url">virgo.farm/dashboard</div>
+    </div>
+
+    <!-- Dashboard UI -->
+    <div class="dashboard">
+      <div class="db-nav">
+        <div class="db-brand">
+          <div class="db-brand-dot"></div>
+          SmartFarm — Virgo
+        </div>
+        <ul class="db-nav-links">
+          <li><a href="#" class="active">Home</a></li>
+          <li><a href="#">Alerts</a></li>
+          <li><a href="#">Reports</a></li>
+          <li><a href="#">Settings</a></li>
+        </ul>
+        <div class="db-user">
+          <div class="db-avatar">RJ</div>
+          Welcome, Rajesh Patel ▾
+        </div>
+      </div>
+
+      <div class="db-body">
+        <!-- Top Metrics -->
+        <div class="db-metrics">
+          <div class="db-metric">
+            <div class="db-metric-icon">💧</div>
+            <div class="db-metric-val">32%</div>
+            <div class="db-metric-sub">Soil Moisture</div>
+            <div class="db-metric-badge badge-green">Moderate</div>
+          </div>
+          <div class="db-metric">
+            <div class="db-metric-icon">🌡️</div>
+            <div class="db-metric-val">28°C</div>
+            <div class="db-metric-sub">Temperature</div>
+            <div class="db-metric-badge badge-orange">Warm</div>
+          </div>
+          <div class="db-metric">
+            <div class="db-metric-icon">🌫️</div>
+            <div class="db-metric-val">65%</div>
+            <div class="db-metric-sub">Humidity</div>
+            <div class="db-metric-badge badge-blue">Normal</div>
+          </div>
+          <div class="db-metric">
+            <div class="db-metric-icon">🚿</div>
+            <div class="db-metric-val">2 Days</div>
+            <div class="db-metric-sub">Last Irrigation</div>
+            <div class="db-metric-badge badge-green">On Schedule</div>
+          </div>
+        </div>
+
+        <!-- Left: Farm Overview -->
+        <div class="db-card">
+          <div class="db-card-title">Farm Overview</div>
+          <div class="farm-info">
+            <div class="farm-avatar">🌾</div>
+            <div>
+              <div class="farm-name">Rajesh Patel</div>
+              <div class="farm-detail">
+                Farm: Green Valley Farm<br>
+                Crop: Wheat + Corn<br>
+                Area: 12 acres<br>
+                Last Watered: 2 Days Ago<br>
+                Weather: 28°C Sunny
+              </div>
+            </div>
+            <div class="farm-divider"></div>
+            <div class="db-card-title" style="margin-bottom:8px">Recent Activity</div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:#77A6B6"></div>
+              <div class="act-text">Irrigation Lasted 30 mins</div>
+              <div class="act-time">2d ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:#B3D89C"></div>
+              <div class="act-text">Fertilizer Applied — Sector B</div>
+              <div class="act-time">4d ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:#9DC3C2"></div>
+              <div class="act-text">System Check Completed</div>
+              <div class="act-time">5d ago</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Crop Health -->
+        <div>
+          <div class="db-card" style="margin-bottom:16px">
+            <div class="db-card-title">Crop Health Status</div>
+            <div class="crop-visual">
+              <div class="crop-pattern"></div>
+              <div class="crop-badge">
+                <div class="crop-status-text">✓ Healthy</div>
+                <div class="crop-status-sub">No issues detected</div>
+              </div>
+            </div>
+            <!-- Mini profit chart -->
+            <div class="db-card-title" style="margin-top:16px; margin-bottom:10px">Weekly Profit Impact (₹)</div>
+            <div class="mini-chart">
+              <div class="chart-bar" style="height:40%;background:#B3D89C"></div>
+              <div class="chart-bar" style="height:60%;background:#9DC3C2"></div>
+              <div class="chart-bar" style="height:50%;background:#77A6B6"></div>
+              <div class="chart-bar" style="height:75%;background:#B3D89C"></div>
+              <div class="chart-bar" style="height:65%;background:#9DC3C2"></div>
+              <div class="chart-bar" style="height:90%;background:#4D7298"></div>
+              <div class="chart-bar" style="height:80%;background:#77A6B6"></div>
+            </div>
+            <div class="chart-labels">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sensors + Alerts -->
+        <div>
+          <div class="db-card" style="margin-bottom:16px">
+            <div class="db-card-title">🔔 Alerts</div>
+            <div class="alert-none">
+              <span>✅</span>
+              <div class="alert-none-text">No current alerts — all systems nominal</div>
+            </div>
+          </div>
+          <div class="db-card">
+            <div class="db-card-title">Sensor Readings</div>
+            <div class="sensor-grid">
+              <div class="sensor-item">
+                <div class="sensor-val">32%</div>
+                <div class="sensor-label">Soil<br>Moisture</div>
+              </div>
+              <div class="sensor-item">
+                <div class="sensor-val">28°</div>
+                <div class="sensor-label">Air<br>Temp</div>
+              </div>
+              <div class="sensor-item">
+                <div class="sensor-val">65%</div>
+                <div class="sensor-label">Humidity</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Irrigation Button -->
+        <button class="db-irrig-btn">
+          💧 Manual Irrigation — Start Now
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET -->
+<section id="market">
+  <div class="reveal">
+    <div class="section-label">Market Opportunity</div>
+    <h2 class="section-title">A <em>$9.5B</em> market waiting for a unified platform.</h2>
+    <ul class="market-points">
+      <li class="market-point">
+        <span class="mp-arrow">→</span>
+        <div class="mp-text">
+          <strong>TAM: USD 9.5 Billion</strong>
+          Global Precision Agriculture Market — rapidly expanding with AI and IoT adoption.
+        </div>
+      </li>
+      <li class="market-point">
+        <span class="mp-arrow">→</span>
+        <div class="mp-text">
+          <strong>SAM: USD 1.8 Billion</strong>
+          Indian Precision Agriculture — 4.5M target farms across Punjab, Haryana, Maharashtra, Karnataka.
+        </div>
+      </li>
+      <li class="market-point">
+        <span class="mp-arrow">→</span>
+        <div class="mp-text">
+          <strong>SOM: ₹2.16 Crore (Year 1–2)</strong>
+          Smartphone-owning medium/large farms (5+ acres) open to agri-tech adoption.
+        </div>
+      </li>
+      <li class="market-point">
+        <span class="mp-arrow">→</span>
+        <div class="mp-text">
+          <strong>Revenue Model: SaaS + Licensing</strong>
+          Monthly subscription per farm + hardware licensing to government agri programs.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="market-visual reveal">
+    <div class="orbit-ring orbit-1"><div class="orbit-dot"></div></div>
+    <div class="orbit-ring orbit-2"><div class="orbit-dot orbit-dot-2"></div></div>
+    <div class="orbit-ring orbit-3"><div class="orbit-dot orbit-dot-3"></div></div>
+    <div class="market-center">
+      <div class="market-num">$9.5B</div>
+      <div class="market-sub">Total Addressable Market</div>
+    </div>
+  </div>
+</section>
+
+<div class="fractal-divider"></div>
+
+<!-- FINANCIALS -->
+<section id="financials">
+  <div class="reveal">
+    <div class="section-label">Financial Projections</div>
+    <h2 class="section-title">Profitable by <em>Year 2.</em></h2>
+  </div>
+  <div class="fin-grid reveal">
+    <div>
+      <div class="fin-year">
+        <div class="fin-year-label">Year 01</div>
+        <div class="fin-year-profit profit-neg">−₹19.4L</div>
+        <div class="fin-year-desc">₹60.5L revenue · ₹79.9L expenses</div>
+      </div>
+      <div class="fin-year">
+        <div class="fin-year-label">Year 02</div>
+        <div class="fin-year-profit profit-pos">+₹43.6L</div>
+        <div class="fin-year-desc">₹1.9Cr revenue · ₹1.5Cr expenses</div>
+      </div>
+      <div class="fin-year">
+        <div class="fin-year-label">Year 03</div>
+        <div class="fin-year-profit profit-pos">+₹2.16Cr</div>
+        <div class="fin-year-desc">₹5Cr revenue · ₹2.8Cr expenses</div>
+      </div>
+    </div>
+    <div class="fin-chart-wrapper">
+      <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid lines -->
+        <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(157,195,194,0.1)" stroke-width="1"/>
+        <line x1="60" y1="240" x2="580" y2="240" stroke="rgba(157,195,194,0.1)" stroke-width="1"/>
+        <line x1="60" y1="140" x2="580" y2="140" stroke="rgba(157,195,194,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="60" y1="80" x2="580" y2="80" stroke="rgba(157,195,194,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+
+        <!-- Revenue bars -->
+        <rect x="100" y="218" width="60" height="22" fill="#B3D89C" opacity="0.6" rx="2"/>
+        <rect x="260" y="170" width="60" height="70" fill="#9DC3C2" opacity="0.6" rx="2"/>
+        <rect x="420" y="80" width="60" height="160" fill="#77A6B6" opacity="0.6" rx="2"/>
+
+        <!-- Expense bars -->
+        <rect x="168" y="205" width="60" height="35" fill="rgba(244,100,100,0.35)" rx="2"/>
+        <rect x="328" y="180" width="60" height="60" fill="rgba(244,100,100,0.25)" rx="2"/>
+        <rect x="488" y="130" width="60" height="110" fill="rgba(244,100,100,0.2)" rx="2"/>
+
+        <!-- Profit line -->
+        <polyline points="130,238 298,196 450,80" fill="none" stroke="#D0EFB1" stroke-width="2" stroke-dasharray="0" opacity="0.8"/>
+        <circle cx="130" cy="238" r="5" fill="#D0EFB1"/>
+        <circle cx="298" cy="196" r="5" fill="#D0EFB1"/>
+        <circle cx="450" cy="80" r="5" fill="#D0EFB1"/>
+
+        <!-- Labels -->
+        <text x="130" y="268" text-anchor="middle" fill="rgba(244,240,230,0.3)" font-family="monospace" font-size="11">Y1</text>
+        <text x="298" y="268" text-anchor="middle" fill="rgba(244,240,230,0.3)" font-family="monospace" font-size="11">Y2</text>
+        <text x="450" y="268" text-anchor="middle" fill="rgba(244,240,230,0.3)" font-family="monospace" font-size="11">Y3</text>
+
+        <!-- Legend -->
+        <rect x="70" y="14" width="12" height="8" fill="#B3D89C" opacity="0.6" rx="1"/>
+        <text x="86" y="22" fill="rgba(244,240,230,0.4)" font-family="monospace" font-size="10">Revenue</text>
+        <rect x="148" y="14" width="12" height="8" fill="rgba(244,100,100,0.35)" rx="1"/>
+        <text x="164" y="22" fill="rgba(244,240,230,0.4)" font-family="monospace" font-size="10">Expenses</text>
+        <line x1="228" y1="18" x2="244" y2="18" stroke="#D0EFB1" stroke-width="2"/>
+        <circle cx="236" cy="18" r="3" fill="#D0EFB1"/>
+        <text x="250" y="22" fill="rgba(244,240,230,0.4)" font-family="monospace" font-size="10">Net Profit</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-bg"></div>
+  <h2 class="cta-title reveal">
+    Ready to make every<br>
+    farm decision <em>count?</em>
+  </h2>
+  <p class="cta-desc reveal">Join us in building the future of precision agriculture. Whether you're a farmer, investor, or agri-business — Virgo is built for you.</p>
+  <div class="cta-btns reveal">
+    <a href="#demo" class="btn-primary"><span>View Live Demo</span></a>
+    <a href="mailto:team@virgo.farm" class="btn-email">
+      <span>✉</span> team@virgo.farm
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Virgo.</div>
+  <div class="footer-text">© 2025 Virgo · Punjab Engineering College, Chandigarh · Wadhwani Foundation</div>
+  <ul class="footer-links">
+    <li><a href="mailto:team@virgo.farm">Contact</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#solution">Solution</a></li>
+  </ul>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '16px';
+    cursor.style.height = '16px';
+    ring.style.width = '52px';
+    ring.style.height = '52px';
+    ring.style.opacity = '0.8';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '10px';
+    cursor.style.height = '10px';
+    ring.style.width = '36px';
+    ring.style.height = '36px';
+    ring.style.opacity = '0.5';
+  });
+});
+
+// FRACTAL CANVAS (Koch snowflake / recursive pattern)
+const canvas = document.getElementById('fractal-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawFractal();
+}
+
+function kochLine(x1,y1,x2,y2,depth) {
+  if (depth === 0) {
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+    return;
+  }
+  const dx = x2-x1, dy = y2-y1;
+  const ax = x1+dx/3, ay = y1+dy/3;
+  const bx = x2-dx/3, by = y2-dy/3;
+  const mx2 = (x1+x2)/2 - dy*Math.sqrt(3)/6;
+  const my2 = (y1+y2)/2 + dx*Math.sqrt(3)/6;
+  kochLine(x1,y1,ax,ay,depth-1);
+  kochLine(ax,ay,mx2,my2,depth-1);
+  kochLine(mx2,my2,bx,by,depth-1);
+  kochLine(bx,by,x2,y2,depth-1);
+}
+
+function drawFractal() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle = '#9DC3C2';
+  ctx.lineWidth = 0.5;
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = Math.min(canvas.width, canvas.height) * 0.38;
+
+  const pts = [];
+  for (let i = 0; i < 3; i++) {
+    const angle = (i * 2 * Math.PI / 3) - Math.PI / 2;
+    pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  }
+
+  kochLine(pts[0].x, pts[0].y, pts[1].x, pts[1].y, 4);
+  kochLine(pts[1].x, pts[1].y, pts[2].x, pts[2].y, 4);
+  kochLine(pts[2].x, pts[2].y, pts[0].x, pts[0].y, 4);
+
+  // Second smaller fractal
+  ctx.strokeStyle = '#77A6B6';
+  ctx.lineWidth = 0.3;
+  const r2 = r * 0.5;
+  const pts2 = [];
+  for (let i = 0; i < 3; i++) {
+    const angle = (i * 2 * Math.PI / 3) + Math.PI / 6;
+    pts2.push({ x: cx + r2 * Math.cos(angle), y: cy + r2 * Math.sin(angle) });
+  }
+  kochLine(pts2[0].x, pts2[0].y, pts2[1].x, pts2[1].y, 3);
+  kochLine(pts2[1].x, pts2[1].y, pts2[2].x, pts2[2].y, 3);
+  kochLine(pts2[2].x, pts2[2].y, pts2[0].x, pts2[0].y, 3);
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+// Slowly rotate fractal
+let angle = 0;
+function animFractal() {
+  angle += 0.001;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.rotate(angle);
+  ctx.translate(-canvas.width/2, -canvas.height/2);
+  ctx.strokeStyle = '#9DC3C2';
+  ctx.lineWidth = 0.5;
+  const cx = canvas.width/2, cy = canvas.height/2;
+  const r = Math.min(canvas.width, canvas.height) * 0.38;
+  const pts = [];
+  for (let i = 0; i < 3; i++) {
+    const a = (i * 2 * Math.PI / 3) - Math.PI / 2;
+    pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+  }
+  kochLine(pts[0].x,pts[0].y,pts[1].x,pts[1].y,4);
+  kochLine(pts[1].x,pts[1].y,pts[2].x,pts[2].y,4);
+  kochLine(pts[2].x,pts[2].y,pts[0].x,pts[0].y,4);
+
+  ctx.strokeStyle = '#77A6B6';
+  ctx.lineWidth = 0.3;
+  const r2 = r*0.5;
+  const pts2 = [];
+  for (let i = 0; i < 3; i++) {
+    const a = (i * 2 * Math.PI / 3) + Math.PI/6;
+    pts2.push({ x: cx + r2 * Math.cos(a), y: cy + r2 * Math.sin(a) });
+  }
+  kochLine(pts2[0].x,pts2[0].y,pts2[1].x,pts2[1].y,3);
+  kochLine(pts2[1].x,pts2[1].y,pts2[2].x,pts2[2].y,3);
+  kochLine(pts2[2].x,pts2[2].y,pts2[0].x,pts2[0].y,3);
+  ctx.restore();
+  requestAnimationFrame(animFractal);
+}
+animFractal();
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      e.target.style.transitionDelay = (i * 0.05) + 's';
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
