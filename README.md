@@ -6,30 +6,6 @@ A dual-component project combining an **ESP32 IoT firmware** for real-time vehic
 
 ## Project Components
 
-### 1. ESP32 Crash Detection Firmware (`main.cpp`)
-
-An Arduino/PlatformIO sketch that reads acceleration data from an **MPU6050 IMU**, computes a G-force value, and publishes a JSON payload to an MQTT broker (HiveMQ Cloud) over a secure TLS connection every second.
-
-**What it does:**
-- Connects to Wi-Fi and establishes a secure MQTT connection (port 8883, TLS)
-- Reads raw X/Y/Z acceleration from the MPU6050 via I²C
-- Computes resultant G-force: `√(ax² + ay² + az²) / 16384`
-- Publishes readings to the topic `vehicle/crash/data` as JSON
-- Prints data to Serial Monitor for local debugging
-- Auto-reconnects to MQTT broker if connection drops
-
-**Published payload format:**
-```json
-{
-  "ax": 1024,
-  "ay": -512,
-  "az": 16100,
-  "g": 1.003
-}
-```
-
----
-
 ### 2. Virgo — AI Farm Intelligence Dashboard (`index.html`)
 
 A fully self-contained, animated landing page for **Virgo**, an AI-driven precision agriculture platform developed at Punjab Engineering College, Chandigarh, under the Wadhwani Foundation.
